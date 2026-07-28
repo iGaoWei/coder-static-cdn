@@ -1,0 +1,31 @@
+name: 手动合并分支
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        required: true
+        default: temp
+      target_branch:
+        required: true
+        default: archive
+permissions:
+  contents: write
+jobs:
+  merge-task:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Git 配置
+        run: |
+          git config --global user.name "Merge Bot"
+          git config --global user.email "bot@github.com"
+      - name: 执行合并推送
+        run: |
+          SRC=${{ github.event.inputs.source_branch }}
+          DST=${{ github.event.inputs.target_branch }}
+          git checkout $DST
+          git pull origin $DST
+          git merge --no-ff origin/$SRC -m "API triggered auto merge ${SRC} → ${DST}"
+          git push origin $DST
