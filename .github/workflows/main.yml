@@ -29,3 +29,13 @@ jobs:
           git pull origin $DST
           git merge --no-ff origin/$SRC -m "API triggered auto merge ${SRC} → ${DST}"
           git push origin $DST
+      - name: 清空临时分支所有文件
+        run: |
+          SRC=${{ github.event.inputs.source_branch }}
+          git checkout $SRC
+          # 删除当前分支全部文件（排除 .git 目录）
+          rm -rf ./*
+          # 提交空内容
+          git add .
+          git commit -m "Clear all files after merged to main"
+          git push origin $SRC
